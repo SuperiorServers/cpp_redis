@@ -161,6 +161,13 @@ namespace cpp_redis {
 			subscriber &auth(const std::string &password, const reply_callback_t &reply_callback = nullptr);
 
 /**
+ * @brief ability to ping on the redis server
+ * @return current instance
+ *
+ */
+			subscriber &ping();
+
+/**
  * @brief Set the label for the connection on the Redis server via the CLIENT SETNAME command.
  * This is useful for monitoring and managing connections on the server side of things.
  * @param name - string to label the connection with on the server side
