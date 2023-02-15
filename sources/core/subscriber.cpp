@@ -146,6 +146,13 @@ subscriber::cancel_reconnect() {
 }
 
 subscriber&
+subscriber::ping() {
+  m_client.send({"PING"});
+
+  return *this;
+}
+
+subscriber&
 subscriber::auth(const std::string& password, const reply_callback_t& reply_callback) {
   __CPP_REDIS_LOG(debug, "cpp_redis::subscriber attempts to authenticate");
 
@@ -377,7 +384,12 @@ subscriber::connection_receive_handler(network::redis_connection&, reply& reply)
   //! otherwise, if auth was defined, this should be the AUTH reply
   //! any other replies from the server are considered as unexpected
   if (!reply.is_array()) {
-    if (m_auth_reply_callback) {
+
+    if (m_ping_reply_callback && reply.is_simple_string() && (reply.as_string() == "PONG")) {
+      m_ping_reply_callback(reply);
+      m_ping_reply_callback = nullptr;
+    }
+    else if (m_auth_reply_callback) {
       __CPP_REDIS_LOG(debug, "cpp_redis::subscriber executes auth callback");
 
       m_auth_reply_callback(reply);
